@@ -13,6 +13,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'majutsushi/tagbar'
 
 call vundle#end()
+"my setting
 filetype plugin indent on
 set tabstop=4
 set softtabstop=4
