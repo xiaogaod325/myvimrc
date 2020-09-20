@@ -1,0 +1,77 @@
+制作ubuntu 镜像
+	windows 平台
+		可以用 rufus 或者ultraISO
+	ubuntu 平台
+		umount /dev/sdc1
+		sudo dd bs=4M if=ubuntu-20.04.1-desktop-amd64.iso of=/dev/sdc status=progress oflag=sync
+
+设置源
+    设置---->关于--->software update---> aliyun
+
+安装svn
+    sudo apt-get install subversion
+    
+github 设置sshkey
+     cd ~
+     rm ~/.ssh/*
+     ssh-keygen -t rsa -C "1135143763@qq.com"
+     #not need passphrase
+     #copy ~/.ssh/id_rsa.pub content github-->setttint-->RSA--->add new rsa 
+     git config --global user.name "xiaogaod325"
+     git config--global user.email "1135143763@qq.com"
+     ssh -T git@github.com
+     
+     git clone git@github.com:xiaogaod325/xiaogaod325.github.io.git
+     
+     git add .
+     git commit -m 'target'
+     git push -u origin master
+
+安装虚拟机  
+     官网下载
+     chmod+x VMware-Player-16.0.0-16894299.x86_64.bundle
+     sudo ./VMware-Player-16.0.0-16894299.x86_64.bundle
+     img 转 iso
+     sudo apt-get install iat
+     iat WIN7-SP1-ENG-X64.img  WIN7-SP1-ENG-X64.iso
+     win 安装
+     win7 安装尽量选择 win7 ultimate 多语言支持更好
+     下载安装win7 中文包，自动update 比较慢
+     
+ 安装Qv2ray
+     sudo apt-get install gnupg ca-certificates curl
+     curl -sSL https://qv2ray.net/debian/pubkey.gpg | sudo apt-key add -
+     echo "deb [arch=amd64] https://qv2ray.net/debian/ stable main" | sudo tee /etc/apt/sources.list.d/qv2ray.list
+     sudo apt-get update
+     sudo apt-get install qv2ray
+
+     https://github.com/v2ray/v2ray-core/releases-->v2ray-linux-64.zip---->解压到目录
+     
+     qv2ray---->首选项-->内核目录-->指定v2ray-core 解压文件和路径
+     
+     qv2ray---->分组--->设置订阅更新
+     ubuntu 系统设置--->网络-->代理自动--->www.google.com
+     
+     
+    
+qt4 安装
+    //The Qt4 framework has been removed from Ubuntu 20.04 main repository
+    sudo add-apt-repository ppa:rock-core/qt4
+    sudo apt update
+    sudo apt-get install build-essential
+    sudo apt-get install qt4-dev-tools qt4-doc qt4-qtconfig qt4-demos qt4-designer qtcreator
+    //remove
+    sudo add-apt-repository --remove ppa:rock-core/qt4
+    sudo apt remove --autoremove "things"
+    或者下载源码自行编译
+    qt-everywhere-opensource-src-4.8.3.tar.gz
+    configure;make;make install
+    设置环境变量
+    .bashrc
+    QTDIR=/usr/local/Trolltech/Qt-4.8.0/
+    PATH=$QTDIR/bin:$PATH
+    MANPATH=$QTDIR/doc/man:$MANPATH
+    LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+    export QTDIR PATH MANPATH LD_LIBRARY_PATH
+    
+    
