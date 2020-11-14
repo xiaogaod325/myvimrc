@@ -73,5 +73,150 @@ qt4 安装
     MANPATH=$QTDIR/doc/man:$MANPATH
     LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
     export QTDIR PATH MANPATH LD_LIBRARY_PATH
+
+ killall  M0816S;
+killall M0816S_WATCHDOG
+
+yizhi
+export PATH="/home/eric/Works/gao/hisi/tmp/stand_project/sv810/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf/bin:$PATH"
+
+mount -o rw,remount /
+udhcpc;
+ifconfig eth0 192.168.135.150
+mount -t nfs -o nolock 192.168.135.42:/home/eric/Works/gao  /mnt/nfs;
+cp /mnt/nfs/hisi/mytest/qt/stand_project/hisi/M0816S/M0816S /home/hanvon/
+
+uboot nfs 启动
+    文件系统 copy 到nfsroot
+    sudo chown eric:eric  nfsroot -R
+    setenv bootargs 'mem=256M total=512M console=ttyAMA0,115200 root=/dev/nfs rw noinitrd ip=192.168.135.43 nfsroot=192.168.135.42:/home/eric/Works/gao/hisi/tmp/nfsroot  blkdevparts=mmcblk0:2M(uboot),1M(factory),50M(config),30M(kernel),256M(rootfs),256M(facelib),7000M(data)'
+nfs 重启
+    sudo /etc/init.d/nfs-kernel-server restart
+nfs 配置文件 /etc/export 设置
+     /home/eric/Works/gao  *(rw,sync,no_subtree_check,all_squash,anonuid=1000,anongid=1000)
+     #/home/eric/Works/gao  *(rw,sync,no_subtree_check,no_root_squash)
+ip 配置文件
+    /mnt/mmc/user.ini
+
+
+
+设置转储
+   ulimit -c unlimited;
+   echo  "/mnt/mmc/%t-core.core"  > /proc/sys/kernel/core_pattern
+   #数据分区空间较大
+   mount -t ext4 /dev/mmcblk0p7  /mnt/mmc/;
+
+GDB 常用
+   board
+        启动gdbserver:   gdbserver  192.168.135.42:5555 sample_hifb 0
+        暂停当前程序:    ctl+c
+   host     
+        设置断点:   b devices/audio/AudioPlayGolf.cxx:190
+        启动程序:   continue
+        断开gdbserver:    monitor exit
+
+GDB初始化脚本
+
+~/.gdbinit
+target  remote 192.168.135.43:5555
+define printqstring
+    printf "(QString)0x%x (length=%i): \"",&$arg0,$arg0.d->size
+    set $i=0
+    while $i < $arg0.d->size
+        set $c=$arg0.d->data[$i++]
+        if $c < 32 || $c > 127
+                printf "\\u0x%04x", $c
+        else
+                printf "%c", (char)$c
+        end
+    end
+    printf "\"\n"
+end
+
+root 目录放不下优化过的文件 可以放到 算法分区内然后加到重新挂载到/home/hanvon 下
+在启动app可以先手动设置ip,避免app 启动后重设ip,卡主系统
+
+
+tmux 常用
+    ctrl-b + %  纵向分割窗口
+    ctrl-b + o  跳转窗口
+    ctrl-b + ctrl-方向  调整窗口大小
+    配置文件 ~/.tmux.conf
+       set -g default-terminal "screen-256color"
+       set -g status-style "bg=black, fg=yellow"  
     
+
+
+vim 常用
+    标签
+        ma `a
+    跳到函数头
+        [[
+    删除成对括号
+        %x''x
+        
+ctags  生成系统头文件tags
+       生成索引的目录最好自己手动添加,简单的用 -R 会导致索引文件过大 重名过多 
+       ctags -I __THROW -I __attribute_pure__ -I __nonnull -I __attribute__ --file-scope=yes --langmap=c:+.h --languages=c,c++ --links=yes --c-kinds=+p --c++-kinds=+p --fields=+iaS --extra=+q  \
+             -f ~/Works/gao/hisi/tmp/tagsDir/systags /usr/include/* /usr/include/sys/* /usr/include/bits/*  /usr/include/netinet/* /usr/include/arpa/*  /usr/include/libusb-1.0/*
+       
+       绝对位置要引用绝对路径  -R 要放在路径前     
+       ctags -f ~/Works/gao/hisi/tmp/tagsDir/sv810sdkappstags   -R /home/eric/Works/mnt/SV810/810_v165/apps  /home/eric/Works/mnt/SV810/810_v165/frameworks
+       
+       C++
+       ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q --language-force=C++ 
+      
+查看gcc 头文件搜索路径
+       echo 'main(){}'| arm-himix200-linux-gcc -E -v -
+
+
+svn 常用命令
+    添加本地所有文件
+        svn info
+        svn add . --no-ignore --force
+        svn commit
+    删除服务器上本地删除的文件
+        svn st | grep ^! | awk '{print " --force "$2}' | xargs svn rm
+    检出单个文件    
+       svn co --depth=empty http://192.168.101.144:9001/FR/C226II/dev/hardware/gaozhuang/work/linux linux_new
+       cd linux_new
+       svn up command.txt
+    生成补丁
+        svn diff > test.patch
+        svn diff | filterdiff -X  ~/Works/gao/hisi/mytest/misc_script/uboot.filterdiff  --clean
+    打补丁
+        patch -p0 < test.patch
+    取消补丁
+        patch -p0 -RE < /patches/20170309.patch
+    打补丁失败,查找
+        find . -name *.rej
+    删除orig文件
+        find . -name *.orig -print0 | xargs -0r rm -f    
     
+
+普通diff 命令
+    diff -r -x ".svn" -x "*.c" src1/ src2/
+    diff -uprN --exclude='.svn'  linux-2.6.28.8.orig/net/sunrpc/ linux-2.6.28.8/net/sunrpc/
+    diff --exclude='*.orig' --exclude='*.o' --exclude='*.ko' \
+        --exclude='*.cmd' --exclude='*.o' --exclude='CVS' \
+        --exclude='.svn' --exclude='*.mod' --exclude='.*' \
+        --exclude='*.rej' --exclude='*.orig' --exclude='*.symvers' \
+        --exclude='debian' --exclude='*.a' --exclude='*.mod.c' \
+        --exclude='System.map' --exclude='*.so' -urN \
+         a b >different.patch
+    
+生成emmc CSD 镜像
+    uboot 内执行mmc reg 0, 读出csd 寄存器信息,保存到ubuntu 内csd.txt
+    vim 删除每行前五个字符:%s/^.\{5\}//
+    xxd -r -p  csd.txt csd.bin
+    通过hexdump 确认写入的信息是否正确
+    其他方法
+         1.mmc-utils
+         2.debugfs
+            $ mount -t debugfs debugfs /d
+            $ cat /d/mmc0/mmc0:0001/ext_csd 
+            
+emmc 读写性能测试
+    dd if=/dev/zero of=/dev/mmcblk0p4 bs=1M count=400
+    
+
