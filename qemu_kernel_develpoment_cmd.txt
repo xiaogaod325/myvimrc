@@ -16,11 +16,11 @@
    sudo apt-get install debootstrap
    IMG=qemu-image.img
    DIR=mount-point.dir
-   qemu-img create $IMG 1g
+   qemu-img create $IMG 20g
    mkfs.ext2 $IMG
    mkdir $DIR
    sudo mount -o loop $IMG $DIR
-   sudo debootstrap --arch amd64 jessie $DIR http://mirrors.aliyun.com/debian
+   sudo debootstrap --arch amd64 focal $DIR http://mirrors.aliyun.com/ubuntu
    sudo umount $DIR
    rmdir $DIR
    sudo qemu-system-x86_64 -kernel /boot/vmlinuz-`uname -r`                          -hda qemu-image.img                          -append "root=/dev/sda single"
@@ -35,7 +35,9 @@
    cd ..
    qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage  -hda qemu-image.img   -append "root=/dev/sda single" -enable-kvm
    文件系统只读 重新挂载，mount -o rw,remount / 修改密码 passwd
-   qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage    -hda qemu-image.img -append "root=/dev/sda console=ttyS0" --enable-kvm -cpu host --nographic -net nic -net user,hostfwd=tcp::5555-:22
+   adduser gao
+   /etc/sudoer 增加 一行  gao     ALL=(ALL:ALL) ALL   
+   qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage    -hda qemu-image.img -append "root=/dev/sda rw console=ttyS0" --enable-kvm -cpu host --nographic -net nic -net user,hostfwd=tcp::5555-:22
    虚拟机内启动网络
    mount -o rw,remount /
    /etc/init.d/networking restart
@@ -43,6 +45,10 @@
    ping wwww.baidu.com
    传文件
    scp -P 5555 mycmd.txt  gao@localhost:/home/gao/
+   编译安装命令到虚拟机
+      关机，挂在镜像到目录
+   sudo make -C tools/ perf_install prefix=`pwd`/tool_install
+   
 #insnstall jekyll
    sudo apt-get install ruby ruby-dev
    sudo apt-get install nodejs
