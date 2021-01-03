@@ -52,8 +52,14 @@ github 设置sshkey
      qv2ray---->分组--->设置订阅更新
      ubuntu 系统设置--->网络-->代理自动--->www.google.com
      
-     
-    
+ vscode 设置
+    设置插件需要科学上网
+    默认插件 c/c++ intelliSense 很好用;
+    vscode ctrl+space 是补齐快捷键 输入法切换不要冲突
+    run--->configuratin 会在当前目录下创建 .vscode/lunch.json
+    左下脚---->setting   会在当前目录下创建 .vscode/setting
+    F1---->c/c++: Edit Configuratin 会创建 .vscode/c_cpp_properties.json 可以添加头文件路径自动补齐
+
 qt4 安装
     //The Qt4 framework has been removed from Ubuntu 20.04 main repository
     sudo add-apt-repository ppa:rock-core/qt4
