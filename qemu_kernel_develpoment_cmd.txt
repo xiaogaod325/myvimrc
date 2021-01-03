@@ -17,7 +17,7 @@
    IMG=qemu-image.img
    DIR=mount-point.dir
    qemu-img create $IMG 20g
-   mkfs.ext2 $IMG
+   mkfs.ext4 $IMG
    mkdir $DIR
    sudo mount -o loop $IMG $DIR
    sudo debootstrap --arch amd64 focal $DIR http://mirrors.aliyun.com/ubuntu
@@ -37,14 +37,17 @@
    文件系统只读 重新挂载，mount -o rw,remount / 修改密码 passwd
    adduser gao
    /etc/sudoer 增加 一行  gao     ALL=(ALL:ALL) ALL   
-   qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage    -hda qemu-image.img -append "root=/dev/sda rw console=ttyS0" --enable-kvm -cpu host --nographic -net nic -net user,hostfwd=tcp::5555-:22
+   qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage    -hda qemu-image.img -append "root=/dev/sda rw console=ttyS0"  --enable-kvm -cpu host --nographic -net nic -net user,hostfwd=tcp::5555-:22
    虚拟机内启动网络
    mount -o rw,remount /
    /etc/init.d/networking restart
-   dhclient eth0
+   dhclient eth0  or dhclient enp0s3
    ping wwww.baidu.com
    传文件
    scp -P 5555 mycmd.txt  gao@localhost:/home/gao/
+   or
+   sudo scp -o "StrictHostKeyChecking=no"  -P 5555 a.out   gao@localhost:/home/gao/ 
+   sudo ssh -o "StrictHostKeyChecking=no"  -p 5555  gao@localhost
    编译安装命令到虚拟机
       关机，挂在镜像到目录
    sudo make -C tools/ perf_install prefix=`pwd`/tool_install
