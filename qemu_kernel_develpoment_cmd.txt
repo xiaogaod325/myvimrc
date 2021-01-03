@@ -36,8 +36,11 @@
    qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage  -hda qemu-image.img   -append "root=/dev/sda single" -enable-kvm
    文件系统只读 重新挂载，mount -o rw,remount / 修改密码 passwd
    adduser gao
+   增加速度哦权限
    /etc/sudoer 增加 一行  gao     ALL=(ALL:ALL) ALL   
    qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage    -hda qemu-image.img -append "root=/dev/sda rw console=ttyS0"  --enable-kvm -cpu host --nographic -net nic -net user,hostfwd=tcp::5555-:22
+   修改计算机名称
+   /etc/hostname
    虚拟机内启动网络
    mount -o rw,remount /
    /etc/init.d/networking restart
